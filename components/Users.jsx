@@ -2,28 +2,30 @@ import { useState, useEffect } from "react";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: "", email: "" });
-  const [editingUser, setEditingUser] = useState(null);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    username: "",
+    email: "",
+    address: { street: "", city: "" },
+  });
+  const URL = "http://localhost:3333/users";
 
-  // Запрос пользователей с сервера при загрузке компонента
   useEffect(() => {
-    fetch("http://localhost:3333/users")
+    fetch(URL)
       .then((response) => response.json())
       .then((data) => setUsers(data));
   }, []);
 
-  // Удаление пользователя
   const deleteUser = (id) => {
-    fetch(`http://localhost:3333/users/${id}`, {
+    fetch(`${URL}/${id}`, {
       method: "DELETE",
     }).then(() => {
       setUsers(users.filter((user) => user.id !== id));
     });
   };
 
-  // Добавление нового пользователя
   const addUser = () => {
-    fetch("http://localhost:3333/users", {
+    fetch(URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,23 +35,12 @@ const Users = () => {
       .then((response) => response.json())
       .then((data) => {
         setUsers([...users, data]);
-        setNewUser({ name: "", email: "" });
-      });
-  };
-
-  // Редактирование данных пользователя
-  const editUser = (id, updatedUser) => {
-    fetch(`http://localhost:3333/users/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedUser),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setUsers(users.map((user) => (user.id === id ? data : user)));
-        setEditingUser(null);
+        setNewUser({
+          name: "",
+          username: "",
+          email: "",
+          address: { street: "", city: "" },
+        });
       });
   };
 
@@ -59,7 +50,10 @@ const Users = () => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>UserName</th>
             <th>Email</th>
+            <th>Street</th>
+            <th>City</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -67,10 +61,12 @@ const Users = () => {
           {users.map((user) => (
             <tr key={user.id}>
               <td>{user.name}</td>
+              <td>{user.username}</td>
               <td>{user.email}</td>
+              <td>{user.address.street}</td>
+              <td>{user.address.city}</td>
               <td>
                 <button onClick={() => deleteUser(user.id)}>Delete</button>
-                <button onClick={() => setEditingUser(user.id)}>Edit</button>
               </td>
             </tr>
           ))}
@@ -86,42 +82,39 @@ const Users = () => {
       />
       <input
         type="text"
+        value={newUser.username}
+        placeholder="UserName"
+        onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+      />
+      <input
+        type="text"
         value={newUser.email}
         placeholder="Email"
         onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
       />
+      <input
+        type="text"
+        value={newUser.address.street}
+        placeholder="Street"
+        onChange={(e) =>
+          setNewUser({
+            ...newUser,
+            address: { ...newUser.address, street: e.target.value },
+          })
+        }
+      />
+      <input
+        type="text"
+        value={newUser.address.city}
+        placeholder="City"
+        onChange={(e) =>
+          setNewUser({
+            ...newUser,
+            address: { ...newUser.address, city: e.target.value },
+          })
+        }
+      />
       <button onClick={addUser}>Add</button>
-
-      {editingUser && (
-        <div>
-          <h2>Edit User</h2>
-          <input
-            type="text"
-            value={users.find((user) => user.id === editingUser).name}
-            placeholder="Name"
-            onChange={(e) => {
-              const updatedUser = {
-                ...users.find((user) => user.id === editingUser),
-                name: e.target.value,
-              };
-              editUser(editingUser, updatedUser);
-            }}
-          />
-          <input
-            type="text"
-            value={users.find((user) => user.id === editingUser).email}
-            placeholder="Email"
-            onChange={(e) => {
-              const updatedUser = {
-                ...users.find((user) => user.id === editingUser),
-                email: e.target.value,
-              };
-              editUser(editingUser, updatedUser);
-            }}
-          />
-          <button onClick={() => setEditingUser(null)}>Cancel</button>
-        </div>
-      )}
     </div>
   );
 };

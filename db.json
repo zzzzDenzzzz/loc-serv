@@ -208,14 +208,14 @@
       }
     },
     {
-      "name": "sde44",
-      "email": "342342337",
+      "name": "DENIS GOROKHOV",
+      "username": "1",
+      "email": "12den24@gmail.com",
+      "address": {
+        "street": "Разина 17",
+        "city": "Рязань"
+      },
       "id": 11
-    },
-    {
-      "name": "123",
-      "email": "321",
-      "id": 12
     }
   ]
 }
